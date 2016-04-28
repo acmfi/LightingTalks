@@ -1,0 +1,70 @@
+#+Title: 404
+#+Author: Nacho
+#+Email:SexyACM@BestAsocEUW.io
+
+#+LANGUAGE: es
+#+SELECT_TAGS: export
+#+EXCLUDE_TAGS: noexport
+#+CREATOR: Emacs 24.5.1 (Org mode 8.3.2)
+#+LATEX_CLASS_OPTIONS: [a4paper,hidelinks]
+
+#+LATEX_CLASS_OPTIONS: [...,hidelinks]
+
+#+OPTIONS: reveal_center:t reveal_progress:t reveal_history:t reveal_control:t
+#+OPTIONS: reveal_rolling_links:nil reveal_keyboard:t reveal_overview:t num:nil
+#+OPTIONS: reveal_slide_number:h/v
+#+OPTIONS: reveal_width:1200 reveal_height:800
+#+REVEAL_MARGIN: 0.1
+#+REVEAL_MIN_SCALE: 0.5
+#+REVEAL_MAX_SCALE: 2.5
+#+REVEAL_TRANS: linear
+#+REVEAL_THEME: league
+#+REVEAL_HLEVEL: 1
+#+REVEAL_EXTRA_CSS: ./acm.css
+#+REVEAL_HEAD_PREAMBLE: <meta name="description" content="EmacsFTW.">
+#+REVEAL_PLUGINS: (markdown notes zoom multiplex classList)
+#+REVEAL_EXTRA_JS: { src: './acm.js', async: true }
+
+#+OPTIONS: toc:nil
+# #+OPTIONS: reveal_single_file:t
+
+# Read: https://github.com/yjwen/org-reveal/
+
+* Cosas aprendidas 						   :noexport:
+** Generator Functions - [[https://en.wikipedia.org/wiki/Generator_%2528computer_programming%2529][wikipedia]]
+
+A generator is very similar to a function that returns an array, in
+that a generator has parameters, can be called, and generates a
+sequence of values. However, instead of building an array containing
+all the values and returning them all at once, a generator yields the
+values one at a time, which requires less memory and allows the caller
+to get started processing the first few values immediately. In short,
+a generator looks like a function but behaves like an iterator.
+
+
+* *Búsqueda de elementos*
+* *Búsqueda Lineal*
+** *Jump search*
+* *Búsqueda binaria*
+#+attr_html:
+[[./images/BinarySearch.gif]]
+** *Problema en varias implementaciones*
+* *Búsqueda de Fibonacci*
+** *Similarities with Binary Search*
+- Works for sorted arrays
+- A Divide and Conquer Algorithm.
+- Has Log n time complexity.
+
+** *Differences with Binary Search*
+
+- Fibonacci Search divides given array in unequal parts
+- Binary Search uses division operator to divide range. Fibonacci
+  Search doesn’t use /, but uses + and -. The division operator may be
+  costly on some CPUs.
+- Fibonacci Search examines relatively closer elements in subsequent
+  steps. So when input array is big that cannot fit in CPU cache or
+  even in RAM, Fibonacci Search can be useful.
+
+* *Búsqueda ternaria*
+** *Búsqueda binaria vs ternaria*
+* *Búsqueda por interpolación*

@@ -1,0 +1,129 @@
+#+TITLE:     Actores: Concepto y uso
+#+AUTHOR:    Samuel García Haro
+#+EMAIL:     samgh96@gmail.com
+#+DATE:      31-3-2016
+#+DESCRIPTION: 
+#+KEYWORDS: 
+#+LANGUAGE:  es
+#+OPTIONS:   H:3 num:t toc:t \n:nil @:t ::t |:t ^:t -:t f:t *:t <:t
+#+OPTIONS:   TeX:t LaTeX:t skip:nil d:nil todo:t pri:nil tags:not-in-toc
+#+INFOJS_OPT: view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+#+EXPORT_SELECT_TAGS: export
+#+EXPORT_EXCLUDE_TAGS: noexport
+#+LINK_UP:   
+#+LINK_HOME:
+
+
+
+* Actores
+** Modelos de concurrencia
+  - Basados normalmente en estados compartidos -> Tiene los problemas explicados en la asignatura de Concurrencia
+  - En código complicado tiene muchos problemas (hay que asegurar exclusión mutua, riesgo de deadlocks, starvation...)
+** ¿Qué es un actor?
+Un actor es una entidad computacional que, dependiendo de los mensajes que recibe, puede (de forma concurrente):
+  - *Enviar* un número finito de mensajes a otros actores (de forma asíncrona)
+  - *Crear* un número finito de actores
+  - *Designar el comportamiento* a usar para el siguiente mensaje que recibe
+ Según el modelo de actores (análogamente al modelo de POO) /todo es un actor/. Los actores tienen un mailbox (una cola) con múltiples productores, que son otros actores, y un solo 
+ consumidor. Cada actor reacciona recibiendo mensajes en su mailbox basado en pattern matching.  
+** Modelo de actores
+*** Principios del modelo
+  - No shared state
+  - Lightweight processes
+  - Asynchronous message-passing
+  - Mailboxes to buffer incoming messages
+  - Mailbox processing with pattern matching
+*** Esquema 
+[[./actorsfix.svg]]
+
+*** Problemas
+- Producidos principalmente por aplicaciones incorrectas
+- Posibles casos de deadlocks y dependencias cíclicas
+- Se puede resolver con timeouts y actores supervisores
+** Actores en la JVM
+El lenguaje insignia del modelo de actores es Erlang, pero existen librerías/lenguajes que corren con la JVM y tienen implementados el modelo de actores (lenguajes como Groovy y Scala, 
+librerías como Kilim y ActorFoundry (en tiempo de compilación) o Actors Guild (en tiempo de ejecución) y Jetlang.
+
+El lenguaje con una mejor implementación del modelo de actores en la JVM es *Scala* y por tanto vamos a usarlo en los ejemplos.
+** Akka Actors
+El siguiente ejemplo está hecho en Scala usando el paquete Actors de Akka (el cual podéis obtener de aquí: http://akka.io). 
+** Ejemplo básico
+#+BEGIN_SRC scala
+package actors
+
+import akka.actor.Actor
+import Actor._
+
+class CoutingActor extends Actor {
+
+  var count = 0;
+
+  def receive = {
+    case "visit" => 
+      count = count+1
+    sender ! ""+count 
+    }
+}
+#+END_SRC 
+* Ping pong
+** Ping
+#+BEGIN_SRC scala
+
+import akka.actor._
+ 
+case object PingMessage
+case object PongMessage
+case object StartMessage
+case object StopMessage
+ 
+class Ping(pong: ActorRef) extends Actor {
+  var count = 0
+  def incrementAndPrint { count += 1; println("ping") }
+  def receive = {
+  case StartMessage =>
+    incrementAndPrint
+        pong ! PingMessage
+	case PongMessage => 
+    incrementAndPrint
+        if (count > 99) {
+          sender ! StopMessage
+          println("ping stopped")
+          context.stop(self)
+        } else {
+          sender ! PingMessage
+        }
+    }
+}
+
+#+END_SRC 
+ 
+** Pong
+
+#+BEGIN_SRC scala
+
+class Pong extends Actor {
+  def receive = {
+    case PingMessage =>
+        println("  pong")
+        sender ! PongMessage
+    case StopMessage =>
+        println("pong stopped")
+        context.stop(self)
+	}
+}
+ 
+object PingPongTest extends App {
+  val system = ActorSystem("PingPongSystem")
+  val pong = system.actorOf(Props[Pong], name = "pong")
+  val ping = system.actorOf(Props(new Ping(pong)), name = "ping")
+  // start them going
+  ping ! StartMessage
+}
+
+#+END_SRC
+* Bibliografía
+** 
+- http://berb.github.io/diploma-thesis/original/050_index.html
+- http://www.javaworld.com/article/2077999/java-concurrency/understanding-actor-concurrency--part-1--actors-in-erlang.html
+- http://www.javaworld.com/article/2078020/java-concurrency/understanding-actor-concurrency-part-2-actors-on-the-jvm.html
+- https://www.toptal.com/scala/concurrency-and-fault-tolerance-made-easy-an-intro-to-akka

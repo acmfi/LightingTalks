@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<title>I Promise you the Future</title>
+<meta name="author" content="(Rock Neurotiko)"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="file:///home/rock/.emacs.d/plugins/revealjs/css/reveal.css"/>
+<link rel="stylesheet" href="file:///home/rock/.emacs.d/plugins/revealjs/css/theme/league.css" id="theme"/>
+<link rel="stylesheet" href="./acm.css"/>
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = 'file:///home/rock/.emacs.d/plugins/revealjs/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide" data-background="" data-background-size="" data-background-repeat="" data-background-transition="">
+<h1>I Promise you the Future</h1> <h2>Rock Neurotiko</h2> <h2><a href="mailto:miguelglafuente@gmail.com">miguelglafuente@gmail.com</a></h2> <h2><span class="timestamp-wrapper"><span class="timestamp">&lt;2016-04-01 vie&gt;</span></span></h2>
+</section>
+
+
+<section>
+<section id="slide-orgheadline1">
+<div class="slide-header"></div>
+<h2 id="orgheadline1">Quien soy?</h2>
+<ul>
+<li>Miguel Garcia (Rock Neurotiko)</li>
+<li>Estudiante de la FI UPM</li>
+<li>Becario en el CoNWeT Lab</li>
+<li>Presidente de ACM UPM</li>
+<li>I &lt;3 Programming Languages &amp; <b>Concurrency</b></li>
+
+</ul>
+
+<div class="slide-footer"></div>
+</section>
+</section>
+<section>
+<section id="slide-orgheadline2">
+<div class="slide-header"></div>
+<h2 id="orgheadline2">Los cuatro efectos esenciales en programacion</h2>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">Un valor</td>
+<td class="org-left">Muchos valores</td>
+</tr>
+
+<tr>
+<td class="org-left">Sincrono</td>
+<td class="org-left">T/Try[T]</td>
+<td class="org-left">Iterable[T]</td>
+</tr>
+
+<tr>
+<td class="org-left">Asincrono</td>
+<td class="org-left">Future[T]</td>
+<td class="org-left">Observable[T]</td>
+</tr>
+</tbody>
+</table>
+
+<div class="slide-footer"></div>
+</section>
+</section>
+<section>
+<section id="slide-orgheadline3">
+<div class="slide-header"></div>
+<h2 id="orgheadline3">Cuantas cosas suceden a la vez en una web?</h2>
+<ul>
+<li class="off"><code>[&#xa0;]</code> Inicializacion de la aplicacion</li>
+<li class="off"><code>[&#xa0;]</code> Reproductores</li>
+<li class="off"><code>[&#xa0;]</code> View/model binding (teclado, raton, &#x2026;)</li>
+<li class="off"><code>[&#xa0;]</code> Animaciones</li>
+<li class="on"><code>[X]</code> Carga de informacion a traves de APIs (Data access)</li>
+<li class="on"><code>[X]</code> Enviar informacion a servidores (tracking, upload, &#x2026;)</li>
+<li class="off"><code>[&#xa0;]</code> MUCHO mas</li>
+
+</ul>
+
+<div class="slide-footer"></div>
+</section>
+</section>
+<section>
+<section id="slide-orgheadline7">
+<div class="slide-header"></div>
+<h2 id="orgheadline7">Latencia como efecto</h2>
+<div class="outline-text-2" id="text-orgheadline7">
+</div><div class="slide-footer"></div>
+</section>
+<section id="slide-orgheadline4">
+<div class="slide-header"></div>
+<h3 id="orgheadline4">Algunos datos</h3>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-right" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">instruccion</td>
+<td class="org-right">1/10<sup>9</sup> sec = 1 nanosec</td>
+</tr>
+
+<tr>
+<td class="org-left">L1 cache</td>
+<td class="org-right">0.5 nanosec</td>
+</tr>
+
+<tr>
+<td class="org-left">fallo de cache</td>
+<td class="org-right">5 nanosec</td>
+</tr>
+
+<tr>
+<td class="org-left">L2 cache</td>
+<td class="org-right">7 nanosec</td>
+</tr>
+
+<tr>
+<td class="org-left">Mutex (un)lock</td>
+<td class="org-right">25 nanosec</td>
+</tr>
+
+<tr>
+<td class="org-left">Memoria principal</td>
+<td class="org-right">100 nanosec</td>
+</tr>
+
+<tr>
+<td class="org-left">Enviar 2KB con 1Gbps</td>
+<td class="org-right">20.000 nanosec</td>
+</tr>
+
+<tr>
+<td class="org-left">Leer 1MB secuencialmente de memoria</td>
+<td class="org-right">250.000 nanosec</td>
+</tr>
+
+<tr>
+<td class="org-left">Seek a una nueva posicion de disco</td>
+<td class="org-right">800.0000 nanosec</td>
+</tr>
+
+<tr>
+<td class="org-left">Leer 1MB secuencialmente de disco</td>
+<td class="org-right">20.000.000 nanosec</td>
+</tr>
+
+<tr>
+<td class="org-left">Enviar un paquete a US y vuelta</td>
+<td class="org-right">150ms = 150.000.000 nanosec</td>
+</tr>
+</tbody>
+</table>
+
+<div class="slide-footer"></div>
+</section>
+<section id="slide-orgheadline5">
+<div class="slide-header"></div>
+<h3 id="orgheadline5">Ajam</h3>
+
+<div class="slide-footer"></div>
+</section>
+<section id="slide-orgheadline6">
+<div class="slide-header"></div>
+<h3 id="orgheadline6">En escala humana!</h3>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-right" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">instruccion</td>
+<td class="org-right">1 segundo</td>
+</tr>
+
+<tr>
+<td class="org-left">L1 cache</td>
+<td class="org-right">0.5 segundos</td>
+</tr>
+
+<tr>
+<td class="org-left">fallo de cache</td>
+<td class="org-right">5 segundos</td>
+</tr>
+
+<tr>
+<td class="org-left">L2 cache</td>
+<td class="org-right">7 segundos</td>
+</tr>
+
+<tr>
+<td class="org-left">Mutex (un)lock</td>
+<td class="org-right">medio minuto</td>
+</tr>
+
+<tr>
+<td class="org-left">Memoria principal</td>
+<td class="org-right">minuto y medio</td>
+</tr>
+
+<tr>
+<td class="org-left">Enviar 2KB con 1Gbps</td>
+<td class="org-right">5 horas y media</td>
+</tr>
+
+<tr>
+<td class="org-left">Leer 1MB secuencialmente de memoria</td>
+<td class="org-right">3 dias</td>
+</tr>
+
+<tr>
+<td class="org-left">Seek a una nueva posicion de disco</td>
+<td class="org-right">13 semanas</td>
+</tr>
+
+<tr>
+<td class="org-left">Leer 1MB secuencialmente de disco</td>
+<td class="org-right">6 meses y medio</td>
+</tr>
+
+<tr>
+<td class="org-left">Enviar un paquete a US y vuelta</td>
+<td class="org-right">5 años</td>
+</tr>
+</tbody>
+</table>
+
+
+<div class="slide-footer"></div>
+</section>
+</section>
+<section>
+<section id="slide-orgheadline9">
+<div class="slide-header"></div>
+<h2 id="orgheadline9">Traditional aproach</h2>
+<p>
+CALLBACKS!
+</p>
+
+<div class="slide-footer"></div>
+</section>
+<section id="slide-orgheadline8">
+<div class="slide-header"></div>
+<h3 id="orgheadline8">Show me!</h3>
+<div class="org-src-container">
+
+<pre  class="src src-js">  $.ajax({
+      method: <span style="color: #66cccc;">"GET"</span>,
+      url: <span style="color: #66cccc;">"/api/v1/films"</span>,
+      <span style="color: #f99157;">success</span>: <span style="color: #99cc99;">function</span> (<span style="color: #ffcc66;">data</span>, <span style="color: #ffcc66;">textStatus</span>, <span style="color: #ffcc66;">jqXHR</span>) {
+          <span style="color: #999999; font-style: italic;">// </span><span style="color: #999999; font-style: italic;">Use them...</span>
+      },
+      <span style="color: #f99157;">error</span>: <span style="color: #99cc99;">function</span> (<span style="color: #ffcc66;">jqXHR</span>, <span style="color: #ffcc66;">textStatus</span>, <span style="color: #ffcc66;">error</span>) {
+          <span style="color: #999999; font-style: italic;">// </span><span style="color: #999999; font-style: italic;">Handle error...</span>
+      }
+  });
+
+  $.get(<span style="color: #66cccc;">"/api/v1/films"</span>, <span style="color: #99cc99;">function</span> (<span style="color: #ffcc66;">data</span>) {
+      <span style="color: #999999; font-style: italic;">// </span><span style="color: #999999; font-style: italic;">Use data...</span>
+  });
+</pre>
+</div>
+
+<div class="slide-footer"></div>
+</section>
+</section>
+<section>
+<section id="slide-orgheadline10">
+<div class="slide-header"></div>
+<h2 id="orgheadline10">Caracteristicas</h2>
+<ul>
+<li>Es lo mas sencillo para hacer cosas asincronas</li>
+<li>Pero el control flow es una mierda</li>
+<li>No hay consistencia en la API (doble callback, callback con dos valores, en opciones, componiendo, &#x2026;.)</li>
+<li>Mind blow cuando tienes callbacks con callbacks que llaman a otros callbacks que vienen de callbacks, &#x2026;.</li>
+<li>Excepciones capturadas instantaneamente, no se pueden agrupar ni componer</li>
+
+</ul>
+
+<div class="slide-footer"></div>
+</section>
+</section>
+<section>
+<section id="slide-orgheadline14">
+<div class="slide-header"></div>
+<h2 id="orgheadline14">Callback hell!</h2>
+<div class="outline-text-2" id="text-orgheadline14">
+</div><div class="slide-footer"></div>
+</section>
+<section id="slide-orgheadline11">
+<div class="slide-header"></div>
+<h3 id="orgheadline11"><a href="http://callbackhell.com/">CallbackHell web</a></h3>
+<p>
+Bonito verdad?
+</p>
+
+<div class="org-src-container">
+
+<pre  class="src src-js">  fs.readdir(source, <span style="color: #99cc99;">function</span> (<span style="color: #ffcc66;">err</span>, <span style="color: #ffcc66;">files</span>) {
+      <span style="color: #99cc99;">if</span> (err) {
+          console.log(<span style="color: #66cccc;">"Error finding files: "</span> + err);
+      } <span style="color: #99cc99;">else</span> {
+          files.forEach(<span style="color: #99cc99;">function</span> (<span style="color: #ffcc66;">filename</span>, <span style="color: #ffcc66;">fileIndex</span>) {
+              console.log(filename);
+              gm(source + filename).size(<span style="color: #99cc99;">function</span> (<span style="color: #ffcc66;">err</span>, <span style="color: #ffcc66;">values</span>) {
+                  <span style="color: #99cc99;">if</span> (err) {
+                      console.log(<span style="color: #66cccc;">"Error identifying file size: "</span> + err);
+                  } <span style="color: #99cc99;">else</span> {
+                      console.log(filename + <span style="color: #66cccc;">" : "</span> + values);
+                      aspect = (values.width / values.height);
+                      widths.forEach(<span style="color: #99cc99;">function</span> (<span style="color: #ffcc66;">width</span>, <span style="color: #ffcc66;">widthIndex</span>) {
+                          height = Math.round(width / aspect);
+                          console.log(<span style="color: #66cccc;">"resizing "</span> + filename + <span style="color: #66cccc;">"to "</span> + height + <span style="color: #66cccc;">"x"</span> + height);
+                          <span style="color: #6699cc;">this</span>.resize(width, height).write(dest + <span style="color: #66cccc;">"w"</span> + width + <span style="color: #66cccc;">"_"</span> + filename, <span style="color: #99cc99;">function</span> (<span style="color: #ffcc66;">err</span>) {
+                              <span style="color: #99cc99;">if</span> (err) {
+                                  console.log(<span style="color: #66cccc;">"Error writing file: "</span> + err);
+                              }
+                          });
+                      }.bind(<span style="color: #6699cc;">this</span>));
+                  }
+              });
+          });
+      }
+  });
+</pre>
+</div>
+
+<div class="slide-footer"></div>
+</section>
+<section id="slide-orgheadline12">
+<div class="slide-header"></div>
+<h3 id="orgheadline12">Ejemplo real</h3>
+<p>
+<a href="https://github.com/wirecloud-fiware/kurento-example-services/blob/master/kurento-crowddetector/server.js#L179">Gracias compañeros!</a>
+</p>
+
+<div class="org-src-container">
+
+<pre  class="src src-js">  <span style="color: #99cc99;">function</span> <span style="color: #f99157;">start</span>(<span style="color: #ffcc66;">sessionId</span>, <span style="color: #ffcc66;">sdpOffer</span>, <span style="color: #ffcc66;">callback</span>) {
+      <span style="color: #99cc99;">if</span> (!sessionId) {
+          <span style="color: #99cc99;">return</span> callback(<span style="color: #66cccc;">"Cannot use undefined sessionId"</span>);
+      }
+      <span style="color: #999999; font-style: italic;">// </span><span style="color: #999999; font-style: italic;">Check if session is already transmitting</span>
+      <span style="color: #99cc99;">if</span> (pipelines[sessionId]) {
+          <span style="color: #99cc99;">return</span> callback(<span style="color: #66cccc;">"Close current session before starting a new one or use another browser to open a tutorial."</span>);
+      }
+      getKurentoClient(<span style="color: #99cc99;">function</span> (<span style="color: #ffcc66;">error</span>, <span style="color: #ffcc66;">kurentoClient</span>) {
+          <span style="color: #99cc99;">if</span> (error) {
+              <span style="color: #99cc99;">return</span> callback(error);
+          }
+          kurentoClient.create(<span style="color: #66cccc;">"MediaPipeline"</span>, <span style="color: #99cc99;">function</span> (<span style="color: #ffcc66;">error</span>, <span style="color: #ffcc66;">pipeline</span>) {
+              <span style="color: #99cc99;">if</span> (error) {
+                  <span style="color: #99cc99;">return</span> callback(error);
+              }
+              createMediaElements(pipeline, <span style="color: #99cc99;">function</span> (<span style="color: #ffcc66;">error</span>, <span style="color: #ffcc66;">webRtcEndpoint</span>, <span style="color: #ffcc66;">crowdDetector</span>) {
+                  <span style="color: #99cc99;">if</span> (error) {
+                      pipeline.release();
+                      <span style="color: #99cc99;">return</span> callback(error);
+                  }
+                  connectMediaElements(webRtcEndpoint, crowdDetector, <span style="color: #99cc99;">function</span> (<span style="color: #ffcc66;">error</span>) {
+                      <span style="color: #99cc99;">if</span> (error) {
+                          pipeline.release();
+                          <span style="color: #99cc99;">return</span> callback(error);
+                      }
+                      crowdDetector.on(<span style="color: #66cccc;">"CrowdDetectorDirection"</span>, <span style="color: #99cc99;">function</span> (<span style="color: #ffcc66;">_data</span>){
+                          <span style="color: #99cc99;">return</span> callback(<span style="color: #6699cc;">null</span>, <span style="color: #66cccc;">"crowdDetectorDirection"</span>, _data);
+                      });
+                      crowdDetector.on(<span style="color: #66cccc;">"CrowdDetectorFluidity"</span>, <span style="color: #99cc99;">function</span> (<span style="color: #ffcc66;">_data</span>){
+                          <span style="color: #99cc99;">return</span> callback(<span style="color: #6699cc;">null</span>, <span style="color: #66cccc;">"crowdDetectorFluidity"</span>, _data);
+                      });
+                      crowdDetector.on(<span style="color: #66cccc;">"CrowdDetectorOccupancy"</span>, <span style="color: #99cc99;">function</span> (<span style="color: #ffcc66;">_data</span>){
+                          <span style="color: #99cc99;">return</span> callback(<span style="color: #6699cc;">null</span>, <span style="color: #66cccc;">"crowdDetectorOccupancy"</span>, _data);
+                      });
+                      webRtcEndpoint.processOffer(sdpOffer, <span style="color: #99cc99;">function</span> (<span style="color: #ffcc66;">error</span>, <span style="color: #ffcc66;">sdpAnswer</span>) {
+                          <span style="color: #99cc99;">if</span> (error) {
+                              pipeline.release();
+                              <span style="color: #99cc99;">return</span> callback(error);
+                          }
+                          pipelines[sessionId] = pipeline;
+                          <span style="color: #99cc99;">return</span> callback(<span style="color: #6699cc;">null</span>, <span style="color: #66cccc;">"sdpAnswer"</span>, sdpAnswer);
+                      });
+                  });
+              });
+          });
+      });
+  }
+</pre>
+</div>
+
+<div class="slide-footer"></div>
+</section>
+<section id="slide-orgheadline13">
+<div class="slide-header"></div>
+<h3 id="orgheadline13">&#x2026;</h3>
+<p>
+WHY?
+</p>
+
+
+<div class="figure">
+<p><img src="./extra/why1.jpg" alt="why1.jpg" />
+</p>
+</div>
+
+
+<div class="figure">
+<p><img src="./extra/why2.jpg" alt="why2.jpg" />
+</p>
+</div>
+
+<div class="slide-footer"></div>
+</section>
+</section>
+<section>
+<section id="slide-orgheadline32">
+<div class="slide-header"></div>
+<h2 id="orgheadline32">Monadas al rescate</h2>
+<p>
+O casi&#x2026;
+</p>
+<ul>
+<li>Puramente no lo es, en la practica nos sirve de sobra.</li>
+<li>Task de <a href="https://github.com/scalaz/scalaz">Scalaz</a> o de <a href="http://elm-lang.org/guide/reactivity">Elm</a></li>
+<li>Monad-like interfaz, todos los beneficios ignorando los bordes de los matematicos</li>
+
+</ul>
+
+<div class="slide-footer"></div>
+</section>
+<section id="slide-orgheadline15">
+<div class="slide-header"></div>
+<h3 id="orgheadline15">What?</h3>
+<ul>
+<li>Future ~= Promise</li>
+<li>Objeto con un valor&#x2026; Que estara en algun momento del futuro</li>
+<li>La computacion se completa, de forma existosa o fracasando</li>
+
+</ul>
+
+<div class="slide-footer"></div>
+</section>
+<section id="slide-orgheadline31">
+<div class="slide-header"></div>
+<h3 id="orgheadline31">Como?</h3>
+<div class="outline-text-3" id="text-orgheadline31">
+</div><div class="slide-footer"></div>
+</section>
+<section id="slide-orgheadline22">
+<div class="slide-header"></div>
+<h4 id="orgheadline22">Scala</h4>
+<ul>
+<li>En <code>scala.concurrent.Future</code></li>
+<li><code>Future[T]</code></li>
+
+</ul>
+
+<ul class="org-ul"><li><a id="orgheadline16"></a>Futurize it!<br  /><div class="org-src-container">
+
+<pre  class="src src-scala">  <span style="color: #99cc99;">def</span> <span style="color: #f99157;">getFuture</span>(url<span style="color: #99cc99;">:</span> <span style="color: #6699cc;">String</span>)<span style="color: #99cc99;">:</span> <span style="color: #6699cc;">Future</span>[<span style="color: #6699cc;">String</span>] <span style="color: #99cc99;">=</span> <span style="color: #6699cc;">Future</span> {
+    getSyncUrl(url)
+  }
+  <span style="color: #999999; font-style: italic;">// </span><span style="color: #999999; font-style: italic;">Future(getSomeUrl(url))</span>
+</pre>
+</div></li>
+
+<li><a id="orgheadline21"></a>Composing<br  /><ul class="org-ul"><li><a id="orgheadline17"></a>Map<br  /><div class="org-src-container">
+
+<pre  class="src src-scala">  <span style="color: #99cc99;">val</span> <span style="color: #ffcc66;">containsACM</span><span style="color: #99cc99;">:</span> <span style="color: #6699cc;">Future</span>[<span style="color: #6699cc;">Boolean</span>] <span style="color: #99cc99;">=</span> getFuture(<span style="color: #66cccc;">"http://acm.org"</span>).map { source <span style="color: #99cc99;">=&gt;</span>
+    <span style="color: #999999; font-style: italic;">// </span><span style="color: #999999; font-style: italic;">We are in the future! :)</span>
+    source.contains(<span style="color: #66cccc;">"ACM"</span>)
+  }
+</pre>
+</div></li>
+
+<li><a id="orgheadline20"></a>Flatting futures<br  /><ul class="org-ul"><li><a id="orgheadline18"></a>flatMap<br  /><div class="org-src-container">
+
+<pre  class="src src-scala">  <span style="color: #99cc99;">def</span> <span style="color: #f99157;">validateHtml</span><span style="color: #99cc99;">:</span> <span style="color: #6699cc;">Future</span>[<span style="color: #6699cc;">Boolean</span>] <span style="color: #99cc99;">=</span> ???
+
+  <span style="color: #99cc99;">val</span> <span style="color: #ffcc66;">nestedHtmlValidated</span><span style="color: #99cc99;">:</span> <span style="color: #6699cc;">Future</span>[<span style="color: #6699cc;">Future</span>[<span style="color: #6699cc;">Boolean</span>]] <span style="color: #99cc99;">=</span> getFuture(<span style="color: #66cccc;">"http://acm.org"</span>).map {
+    source <span style="color: #99cc99;">=&gt;</span> validateHtml(source)
+  }
+
+  <span style="color: #99cc99;">val</span> <span style="color: #ffcc66;">htmlValidated</span><span style="color: #99cc99;">:</span> <span style="color: #6699cc;">Future</span>[<span style="color: #6699cc;">Boolean</span>] <span style="color: #99cc99;">=</span> getFuture(<span style="color: #66cccc;">"http://acm.org"</span>).flatMap {
+    source <span style="color: #99cc99;">=&gt;</span> validateHtml(source)
+  }
+</pre>
+</div></li>
+
+<li><a id="orgheadline19"></a>For comprehesions<br  /><div class="org-src-container">
+
+<pre  class="src src-scala">  <span style="color: #99cc99;">def</span> <span style="color: #f99157;">asyncMerge</span>(v1<span style="color: #99cc99;">:</span> <span style="color: #6699cc;">String</span>, v2<span style="color: #99cc99;">:</span> <span style="color: #6699cc;">String</span>)<span style="color: #99cc99;">:</span> <span style="color: #6699cc;">Future</span>[<span style="color: #6699cc;">String</span>] <span style="color: #99cc99;">=</span> ???
+
+  <span style="color: #99cc99;">def</span> <span style="color: #f99157;">manyThings</span>()<span style="color: #99cc99;">:</span> <span style="color: #6699cc;">Future</span>[<span style="color: #6699cc;">Boolean</span>] <span style="color: #99cc99;">=</span> {
+    <span style="color: #99cc99;">val</span> <span style="color: #ffcc66;">f1</span> <span style="color: #99cc99;">=</span> getFuture(<span style="color: #66cccc;">"test"</span>)
+    <span style="color: #99cc99;">val</span> <span style="color: #ffcc66;">f2</span> <span style="color: #99cc99;">=</span> getFuture(<span style="color: #66cccc;">"test2"</span>)
+    <span style="color: #99cc99;">for</span> {
+      test <span style="color: #99cc99;">&lt;-</span> f1
+      test2 <span style="color: #99cc99;">&lt;-</span> f2
+      combined <span style="color: #99cc99;">&lt;-</span> asyncMerge(test, test2)
+      validated <span style="color: #99cc99;">&lt;-</span> validateHtml(combined)
+    } <span style="color: #99cc99;">yield</span> validated
+  }
+</pre>
+</div></li></ul></li></ul></li></ul>
+
+<div class="slide-footer"></div>
+</section>
+<section id="slide-orgheadline30">
+<div class="slide-header"></div>
+<h4 id="orgheadline30">JS</h4>
+<ul>
+<li>ES6 Promise || <a href="https://github.com/petkaantonov/bluebird">Bluebird</a> || <a href="https://github.com/kriskowal/q">Q</a> &#x2026;</li>
+
+</ul>
+
+<ul class="org-ul"><li><a id="orgheadline23"></a>Futurize it!<br  /><div class="org-src-container">
+
+<pre  class="src src-js">  <span style="color: #99cc99;">function</span> <span style="color: #f99157;">getPromise</span>(<span style="color: #ffcc66;">url</span>) {
+      <span style="color: #99cc99;">return</span> <span style="color: #99cc99;">new</span> <span style="color: #6699cc;">Promise</span>(<span style="color: #99cc99;">function</span> (<span style="color: #ffcc66;">resolve</span>, <span style="color: #ffcc66;">reject</span>) {
+          <span style="color: #99cc99;">const</span> <span style="color: #ffcc66;">data</span> = getSyncUrl(url);
+          <span style="color: #99cc99;">if</span> (data) {
+              resolve(data);
+          } <span style="color: #99cc99;">else</span> {
+              reject(Error(<span style="color: #66cccc;">"Error"</span>));
+              <span style="color: #999999; font-style: italic;">// </span><span style="color: #999999; font-style: italic;">throw new Exception("Error);</span>
+          }
+      });
+  }
+</pre>
+</div></li>
+
+<li><a id="orgheadline29"></a>Composing<br  /><ul class="org-ul"><li><a id="orgheadline24"></a>And then, and then, and then&#x2026;<br  /><div class="org-src-container">
+
+<pre  class="src src-js">  getPromise(<span style="color: #66cccc;">"http://acm.org"</span>).then(result =&gt; {
+      console.log(<span style="color: #66cccc;">"Worked!"</span>);
+  }).<span style="color: #99cc99;">catch</span>(error =&gt; {
+      console.log(<span style="color: #66cccc;">"Error"</span>);
+  });
+</pre>
+</div></li>
+
+<li><a id="orgheadline25"></a>Inner promises<br  /><div class="org-src-container">
+
+<pre  class="src src-js">  getPromise(<span style="color: #66cccc;">"http://acm.org"</span>)
+      .then(source =&gt; validateHtml(source))
+      .then(htmlValidated =&gt; {
+          console.log(htmlValidated);
+      })
+      .<span style="color: #99cc99;">catch</span>(error =&gt; {
+          console.log(error);
+      });
+</pre>
+</div></li>
+<li><a id="orgheadline26"></a>Many promises<br  /><div class="org-src-container">
+
+<pre  class="src src-js">  Promise.all([Promise1, Promise2, Promise3, Promise4])
+      .then(values =&gt; {
+          <span style="color: #999999; font-style: italic;">// </span><span style="color: #999999; font-style: italic;">values son los valores en orden del resultado de Promise[1..4]</span>
+      });
+
+  Promise.race([Promise1, Promise2, Promise3, Promise4])
+      .then(value =&gt; {
+          <span style="color: #999999; font-style: italic;">// </span><span style="color: #999999; font-style: italic;">Valor del que llegue primero</span>
+      })
+</pre>
+</div></li>
+<li><a id="orgheadline27"></a>Ejemplo real<br  /><div class="org-src-container">
+
+<pre  class="src src-js">  <span style="color: #99cc99;">const</span> <span style="color: #ffcc66;">getJson</span> = url =&gt; getUrl(url).then(JSON.parse)
+
+  getJson(<span style="color: #66cccc;">"story.json"</span>)
+      .then(story =&gt; {
+          addHtmlToPage(story.heading);
+          <span style="color: #99cc99;">return</span> Promise.all(story.chapters.map(getJson));
+      }).then(chapters =&gt; {
+          chapters.forEach(chapter =&gt; addHtmlToPage(chapter.html));
+      }).<span style="color: #99cc99;">catch</span>(err =&gt; {
+          addTextToPage(<span style="color: #66cccc;">"Error!"</span> + err.message)
+      }).then(() =&gt; {
+          $(<span style="color: #66cccc;">"#spinner"</span>).hide();
+      });
+</pre>
+</div></li>
+<li><a id="orgheadline28"></a>Cuidado!<br  /><p>
+Como todas las abstracciones, hay que tener cuidado al usarlo
+Siempre componer, no caer en el callback hell again!
+</p>
+
+<p>
+Visto en <a href="https://gist.github.com/anonymous/2d4724f42da82ebadc5408420ef7355f">reddit</a>:
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-js">        }, <span style="color: #99cc99;">function</span>(<span style="color: #ffcc66;">error</span>) {
+          deferred.reject(error)
+        })
+      }, <span style="color: #99cc99;">function</span>(<span style="color: #ffcc66;">error</span>) {
+        deferred.reject(error)
+      })
+    }, <span style="color: #99cc99;">function</span>(<span style="color: #ffcc66;">error</span>) {
+      deferred.reject(error)
+    })
+  }, <span style="color: #99cc99;">function</span>(<span style="color: #ffcc66;">error</span>) {
+    deferred.reject(error)
+  }
+</pre>
+</div></li></ul></li></ul>
+<div class="slide-footer"></div>
+</section>
+</section>
+<section>
+<section id="slide-orgheadline33">
+<div class="slide-header"></div>
+<h2 id="orgheadline33">Links</h2>
+<ul>
+<li><a href="http://docs.scala-lang.org/overviews/core/futures.html">Scala Futures</a></li>
+<li><a href="http://danielwestheide.com/blog/2013/01/09/the-neophytes-guide-to-scala-part-8-welcome-to-the-future.html">Neophyte guide to Future 1</a></li>
+<li><a href="http://danielwestheide.com/blog/2013/01/16/the-neophytes-guide-to-scala-part-9-promises-and-futures-in-practice.html">Neophyte guide to Future 2</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise">ES6 Promise</a></li>
+<li><a href="http://es.slideshare.net/domenicdenicola/promises-promises">JS Promise slides</a></li>
+<li><a href="http://stackoverflow.com/questions/27454798/is-future-in-scala-a-monad">Future is a monad?</a></li>
+<li><a href="http://elm-lang.org/guide/reactivity">Elm</a></li>
+<li><a href="https://github.com/scalaz/scalaz">Scalaz</a></li>
+<li>Extra: <a href="https://www.coursera.org/course/reactive">Principles of Reactive Programming course</a></li>
+
+</ul>
+<div class="slide-footer"></div>
+</section>
+</section>
+</div>
+</div>
+<script src="file:///home/rock/.emacs.d/plugins/revealjs/lib/js/head.min.js"></script>
+<script src="file:///home/rock/.emacs.d/plugins/revealjs/js/reveal.js"></script>
+
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: true,
+center: true,
+slideNumber: 'h/v',
+rollingLinks: false,
+keyboard: true,
+overview: true,
+width: 1200,
+height: 800,
+margin: 0.10,
+minScale: 0.50,
+maxScale: 2.50,
+
+theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+transition: Reveal.getQueryHash().transition || 'linear', // default/cube/page/concave/zoom/linear/fade/none
+transitionSpeed: 'default',
+multiplex: {
+    secret: null, // null if client
+    id: '', // id, obtained from socket.io server
+    url: '' // Location of socket.io server
+},
+
+// Optional libraries used to extend on reveal.js
+dependencies: [
+{ src: "./acm.js", async: true },
+ { src: 'file:///home/rock/.emacs.d/plugins/revealjs/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: 'file:///home/rock/.emacs.d/plugins/revealjs/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: 'file:///home/rock/.emacs.d/plugins/revealjs/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: 'file:///home/rock/.emacs.d/plugins/revealjs/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: '', async: true },
+ { src: 'file:///home/rock/.emacs.d/plugins/revealjs/plugin/multiplex/client.js', async: true },
+ { src: 'file:///home/rock/.emacs.d/plugins/revealjs/lib/js/classList.js', condition: function() { return !document.body.classList; } }]
+});
+</script>
+</body>
+</html>

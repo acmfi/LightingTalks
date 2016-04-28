@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<title>Actores: Concepto y uso</title>
+<meta name="author" content="(Samuel García Haro)"/>
+<meta name="description" content=""/>
+<meta name="keywords" content=""/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="file:///home/rock/.emacs.d/plugins/revealjs/css/reveal.css"/>
+<link rel="stylesheet" href="file:///home/rock/.emacs.d/plugins/revealjs/css/theme/moon.css" id="theme"/>
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = 'file:///home/rock/.emacs.d/plugins/revealjs/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide">
+<h1>Actores: Concepto y uso</h1>
+<h2>Samuel García Haro</h2>
+<h2><a href="mailto:samgh96@gmail.com">samgh96@gmail.com</a></h2>
+<h2>31-3-2016</h2>
+</section>
+<section id="table-of-contents">
+<div id="table-of-contents">
+<h2>&Iacute;ndice</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#/slide-orgheadline10">1. Actores</a>
+<ul>
+<li><a href="#/slide-orgheadline1">1.1. Modelos de concurrencia</a></li>
+<li><a href="#/slide-orgheadline2">1.2. ¿Qué es un actor?</a></li>
+<li><a href="#/slide-orgheadline6">1.3. Modelo de actores</a>
+<ul>
+<li><a href="#/slide-orgheadline3">1.3.1. Principios del modelo</a></li>
+<li><a href="#/slide-orgheadline4">1.3.2. Esquema</a></li>
+<li><a href="#/slide-orgheadline5">1.3.3. Problemas</a></li>
+</ul>
+</li>
+<li><a href="#/slide-orgheadline7">1.4. Actores en la JVM</a></li>
+<li><a href="#/slide-orgheadline8">1.5. Akka Actors</a></li>
+<li><a href="#/slide-orgheadline9">1.6. Ejemplo básico</a></li>
+</ul>
+</li>
+<li><a href="#/slide-orgheadline13">2. Ping pong</a>
+<ul>
+<li><a href="#/slide-orgheadline11">2.1. Ping</a></li>
+<li><a href="#/slide-orgheadline12">2.2. Pong</a></li>
+</ul>
+</li>
+<li><a href="#/slide-orgheadline15">3. Bibliografía</a>
+<ul>
+<li><a href="#/slide-orgheadline14">3.1. </a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</section>
+
+
+
+<section>
+<section id="slide-orgheadline10">
+<h2 id="orgheadline10"><span class="section-number-2">1</span> Actores</h2>
+<div class="outline-text-2" id="text-1">
+</div></section>
+<section id="slide-orgheadline1">
+<h3 id="orgheadline1"><span class="section-number-3">1.1</span> Modelos de concurrencia</h3>
+<ul>
+<li>Basados normalmente en estados compartidos -&gt; Tiene los problemas explicados en la asignatura de Concurrencia</li>
+<li>En código complicado tiene muchos problemas (hay que asegurar exclusión mutua, riesgo de deadlocks, starvation&#x2026;)</li>
+
+</ul>
+</section>
+<section id="slide-orgheadline2">
+<h3 id="orgheadline2"><span class="section-number-3">1.2</span> ¿Qué es un actor?</h3>
+<p>
+Un actor es una entidad computacional que, dependiendo de los mensajes que recibe, puede (de forma concurrente):
+</p>
+<ul>
+<li><b>Enviar</b> un número finito de mensajes a otros actores (de forma asíncrona)</li>
+<li><b>Crear</b> un número finito de actores</li>
+<li><b>Designar el comportamiento</b> a usar para el siguiente mensaje que recibe</li>
+
+</ul>
+<p>
+Según el modelo de actores (análogamente al modelo de POO) <i>todo es un actor</i>. Los actores tienen un mailbox (una cola) con múltiples productores, que son otros actores, y un solo
+consumidor. Cada actor reacciona recibiendo mensajes en su mailbox basado en pattern matching.
+</p>
+</section>
+<section id="slide-orgheadline6">
+<h3 id="orgheadline6"><span class="section-number-3">1.3</span> Modelo de actores</h3>
+<div class="outline-text-3" id="text-1-3">
+</div></section>
+<section id="slide-orgheadline3">
+<h4 id="orgheadline3"><span class="section-number-4">1.3.1</span> Principios del modelo</h4>
+<ul>
+<li>No shared state</li>
+<li>Lightweight processes</li>
+<li>Asynchronous message-passing</li>
+<li>Mailboxes to buffer incoming messages</li>
+<li>Mailbox processing with pattern matching</li>
+
+</ul>
+</section>
+<section id="slide-orgheadline4">
+<h4 id="orgheadline4"><span class="section-number-4">1.3.2</span> Esquema</h4>
+
+<div class="figure">
+<p><object type="image/svg+xml" data="./actorsfix.svg" >
+Sorry, your browser does not support SVG.</object>
+</p>
+</div>
+
+</section>
+<section id="slide-orgheadline5">
+<h4 id="orgheadline5"><span class="section-number-4">1.3.3</span> Problemas</h4>
+<ul>
+<li>Producidos principalmente por aplicaciones incorrectas</li>
+<li>Posibles casos de deadlocks y dependencias cíclicas</li>
+<li>Se puede resolver con timeouts y actores supervisores</li>
+
+</ul>
+</section>
+<section id="slide-orgheadline7">
+<h3 id="orgheadline7"><span class="section-number-3">1.4</span> Actores en la JVM</h3>
+<p>
+El lenguaje insignia del modelo de actores es Erlang, pero existen librerías/lenguajes que corren con la JVM y tienen implementados el modelo de actores (lenguajes como Groovy y Scala,
+librerías como Kilim y ActorFoundry (en tiempo de compilación) o Actors Guild (en tiempo de ejecución) y Jetlang.
+</p>
+
+<p>
+El lenguaje con una mejor implementación del modelo de actores en la JVM es <b>Scala</b> y por tanto vamos a usarlo en los ejemplos.
+</p>
+</section>
+<section id="slide-orgheadline8">
+<h3 id="orgheadline8"><span class="section-number-3">1.5</span> Akka Actors</h3>
+<p>
+El siguiente ejemplo está hecho en Scala usando el paquete Actors de Akka (el cual podéis obtener de aquí: <a href="http://akka.io/">http://akka.io/</a>).
+</p>
+</section>
+<section id="slide-orgheadline9">
+<h3 id="orgheadline9"><span class="section-number-3">1.6</span> Ejemplo básico</h3>
+<div class="org-src-container">
+
+<pre  class="src src-scala"><span style="color: #99cc99;">package</span> <span style="color: #66cccc;">actors</span>
+
+<span style="color: #99cc99;">import</span> akka.actor.<span style="color: #6699cc;">Actor</span>
+<span style="color: #99cc99;">import</span> <span style="color: #6699cc;">Actor</span>.<span style="color: #99cc99;">_</span>
+
+<span style="color: #99cc99;">class</span> <span style="color: #6699cc;">CoutingActor</span> <span style="color: #99cc99;">extends</span> <span style="color: #6699cc;">Actor</span> {
+
+  <span style="color: #99cc99;">var</span> <span style="color: #f2777a; font-weight: bold;">count</span> <span style="color: #99cc99;">=</span> <span style="color: #6699cc;">0</span>;
+
+  <span style="color: #99cc99;">def</span> <span style="color: #f99157;">receive</span> <span style="color: #99cc99;">=</span> {
+    <span style="color: #99cc99;">case</span> <span style="color: #66cccc;">"visit"</span> <span style="color: #99cc99;">=&gt;</span>
+      count <span style="color: #99cc99;">=</span> count+<span style="color: #6699cc;">1</span>
+    sender ! <span style="color: #66cccc;">""</span>+count
+    }
+}
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orgheadline13">
+<h2 id="orgheadline13"><span class="section-number-2">2</span> Ping pong</h2>
+<div class="outline-text-2" id="text-2">
+</div></section>
+<section id="slide-orgheadline11">
+<h3 id="orgheadline11"><span class="section-number-3">2.1</span> Ping</h3>
+<div class="org-src-container">
+
+<pre  class="src src-scala"><span style="color: #99cc99;">import</span> akka.actor.<span style="color: #99cc99;">_</span>
+
+<span style="color: #99cc99;">case</span> <span style="color: #99cc99;">object</span> <span style="color: #6699cc;">PingMessage</span>
+<span style="color: #99cc99;">case</span> <span style="color: #99cc99;">object</span> <span style="color: #6699cc;">PongMessage</span>
+<span style="color: #99cc99;">case</span> <span style="color: #99cc99;">object</span> <span style="color: #6699cc;">StartMessage</span>
+<span style="color: #99cc99;">case</span> <span style="color: #99cc99;">object</span> <span style="color: #6699cc;">StopMessage</span>
+
+<span style="color: #99cc99;">class</span> <span style="color: #6699cc;">Ping</span>(pong<span style="color: #99cc99;">:</span> <span style="color: #6699cc;">ActorRef</span>) <span style="color: #99cc99;">extends</span> <span style="color: #6699cc;">Actor</span> {
+  <span style="color: #99cc99;">var</span> <span style="color: #f2777a; font-weight: bold;">count</span> <span style="color: #99cc99;">=</span> <span style="color: #6699cc;">0</span>
+  <span style="color: #99cc99;">def</span> <span style="color: #f99157;">incrementAndPrint</span> { count += <span style="color: #6699cc;">1</span>; println(<span style="color: #66cccc;">"ping"</span>) }
+  <span style="color: #99cc99;">def</span> <span style="color: #f99157;">receive</span> <span style="color: #99cc99;">=</span> {
+  <span style="color: #99cc99;">case</span> <span style="color: #6699cc;">StartMessage</span> <span style="color: #99cc99;">=&gt;</span>
+    incrementAndPrint
+        pong ! <span style="color: #6699cc;">PingMessage</span>
+        <span style="color: #99cc99;">case</span> <span style="color: #6699cc;">PongMessage</span> <span style="color: #99cc99;">=&gt;</span>
+    incrementAndPrint
+        <span style="color: #99cc99;">if</span> (count &gt; <span style="color: #6699cc;">99</span>) {
+          sender ! <span style="color: #6699cc;">StopMessage</span>
+          println(<span style="color: #66cccc;">"ping stopped"</span>)
+          context.stop(self)
+        } <span style="color: #99cc99;">else</span> {
+          sender ! <span style="color: #6699cc;">PingMessage</span>
+        }
+    }
+}
+</pre>
+</div>
+
+</section>
+<section id="slide-orgheadline12">
+<h3 id="orgheadline12"><span class="section-number-3">2.2</span> Pong</h3>
+<div class="org-src-container">
+
+<pre  class="src src-scala"><span style="color: #99cc99;">class</span> <span style="color: #6699cc;">Pong</span> <span style="color: #99cc99;">extends</span> <span style="color: #6699cc;">Actor</span> {
+  <span style="color: #99cc99;">def</span> <span style="color: #f99157;">receive</span> <span style="color: #99cc99;">=</span> {
+    <span style="color: #99cc99;">case</span> <span style="color: #6699cc;">PingMessage</span> <span style="color: #99cc99;">=&gt;</span>
+        println(<span style="color: #66cccc;">"  pong"</span>)
+        sender ! <span style="color: #6699cc;">PongMessage</span>
+    <span style="color: #99cc99;">case</span> <span style="color: #6699cc;">StopMessage</span> <span style="color: #99cc99;">=&gt;</span>
+        println(<span style="color: #66cccc;">"pong stopped"</span>)
+        context.stop(self)
+        }
+}
+
+<span style="color: #99cc99;">object</span> <span style="color: #6699cc;">PingPongTest</span> <span style="color: #99cc99;">extends</span> <span style="color: #6699cc;">App</span> {
+  <span style="color: #99cc99;">val</span> <span style="color: #ffcc66;">system</span> <span style="color: #99cc99;">=</span> <span style="color: #6699cc;">ActorSystem</span>(<span style="color: #66cccc;">"PingPongSystem"</span>)
+  <span style="color: #99cc99;">val</span> <span style="color: #ffcc66;">pong</span> <span style="color: #99cc99;">=</span> system.actorOf(<span style="color: #6699cc;">Props</span>[<span style="color: #6699cc;">Pong</span>], name <span style="color: #99cc99;">=</span> <span style="color: #66cccc;">"pong"</span>)
+  <span style="color: #99cc99;">val</span> <span style="color: #ffcc66;">ping</span> <span style="color: #99cc99;">=</span> system.actorOf(<span style="color: #6699cc;">Props</span>(<span style="color: #99cc99;">new</span> <span style="color: #6699cc;">Ping</span>(pong)), name <span style="color: #99cc99;">=</span> <span style="color: #66cccc;">"ping"</span>)
+  <span style="color: #999999; font-style: italic;">// </span><span style="color: #999999; font-style: italic;">start them going</span>
+  ping ! <span style="color: #6699cc;">StartMessage</span>
+}
+</pre>
+</div>
+</section>
+</section>
+<section>
+<section id="slide-orgheadline15">
+<h2 id="orgheadline15"><span class="section-number-2">3</span> Bibliografía</h2>
+<div class="outline-text-2" id="text-3">
+</div></section>
+<section id="slide-orgheadline14">
+<h3 id="orgheadline14"><span class="section-number-3">3.1</span> </h3>
+<ul>
+<li><a href="http://berb.github.io/diploma-thesis/original/050_index.html">http://berb.github.io/diploma-thesis/original/050_index.html</a></li>
+<li><a href="http://www.javaworld.com/article/2077999/java-concurrency/understanding-actor-concurrency--part-1--actors-in-erlang.html">http://www.javaworld.com/article/2077999/java-concurrency/understanding-actor-concurrency--part-1--actors-in-erlang.html</a></li>
+<li><a href="http://www.javaworld.com/article/2078020/java-concurrency/understanding-actor-concurrency-part-2-actors-on-the-jvm.html">http://www.javaworld.com/article/2078020/java-concurrency/understanding-actor-concurrency-part-2-actors-on-the-jvm.html</a></li>
+<li><a href="https://www.toptal.com/scala/concurrency-and-fault-tolerance-made-easy-an-intro-to-akka">https://www.toptal.com/scala/concurrency-and-fault-tolerance-made-easy-an-intro-to-akka</a></li>
+
+</ul>
+</section>
+</section>
+</div>
+</div>
+<script src="file:///home/rock/.emacs.d/plugins/revealjs/lib/js/head.min.js"></script>
+<script src="file:///home/rock/.emacs.d/plugins/revealjs/js/reveal.js"></script>
+
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: false,
+center: true,
+slideNumber: 'c',
+rollingLinks: false,
+keyboard: true,
+overview: true,
+
+theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+transitionSpeed: 'default',
+multiplex: {
+    secret: '', // null if client
+    id: '', // id, obtained from socket.io server
+    url: '' // Location of socket.io server
+},
+
+// Optional libraries used to extend on reveal.js
+dependencies: [
+ { src: 'file:///home/rock/.emacs.d/plugins/revealjs/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+ { src: 'file:///home/rock/.emacs.d/plugins/revealjs/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: 'file:///home/rock/.emacs.d/plugins/revealjs/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: 'file:///home/rock/.emacs.d/plugins/revealjs/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: 'file:///home/rock/.emacs.d/plugins/revealjs/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }]
+});
+</script>
+</body>
+</html>

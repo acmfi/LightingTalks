@@ -1,0 +1,419 @@
+#+OPTIONS: ':nil *:t -:t ::t <:t H:3 \n:nil ^:t arch:headline author:t c:nil
+#+OPTIONS: creator:nil d:(not "LOGBOOK") date:t e:t email:nil f:t inline:t
+#+OPTIONS: num:nil p:nil pri:nil prop:nil stat:t tags:t tasks:t tex:t
+#+OPTIONS: timestamp:t title:t toc:t todo:t |:t
+#+TITLE: I Promise you the Future
+#+DATE: <2016-04-01 vie>
+#+AUTHOR: Rock Neurotiko
+#+EMAIL: miguelglafuente@gmail.com
+#+LANGUAGE: es
+#+SELECT_TAGS: export
+#+EXCLUDE_TAGS: noexport
+#+CREATOR: Emacs 24.4.1 (Org mode 8.3.4)
+#+LATEX_CLASS_OPTIONS: [a4paper,hidelinks]
+#+LATEX_CLASS_OPTIONS: [...,hidelinks]
+#+STARTUP: align
+
+#+OPTIONS: reveal_center:t reveal_control:t
+#+OPTIONS: reveal_history:t reveal_keyboard:t reveal_overview:t
+#+OPTIONS: reveal_progress:t reveal_rolling_links:nil reveal_single_file:nil
+#+OPTIONS: reveal_slide_number:"h/v" reveal_title_slide:t
+#+OPTIONS: reveal_width:1200 reveal_height:800
+#+REVEAL_MARGIN: 0.1
+#+REVEAL_MIN_SCALE: 0.5
+#+REVEAL_MAX_SCALE: 2.5
+# #+REVEAL_ROOT: file:///home/mgarcia/.emacs.d/plugins/revealjs
+#+REVEAL_TRANS: linear
+#+REVEAL_SPEED: default
+#+REVEAL_THEME: league
+#+REVEAL_EXTRA_CSS: ./acm.css
+#+REVEAL_HEAD_PREAMBLE: <meta name="description" content="Presentation Futures.">
+#+REVEAL_POSTAMBLE: <p> Created by Miguel Garcia (@rockneurotiko). </p>
+#+REVEAL_EXTRA_JS: { src: "./acm.js", async: true }
+#+REVEAL_HLEVEL: 1
+
+#+REVEAL_TITLE_SLIDE_TEMPLATE: <h1>%t</h1> <h2>%a</h2> <h2>%e</h2> <h2>%d</h2>
+# #+REVEAL_TITLE_SLIDE_TEMPLATE: <div></div>
+
+#+REVEAL_TITLE_SLIDE_BACKGROUND:
+#+REVEAL_TITLE_SLIDE_BACKGROUND_SIZE:
+#+REVEAL_TITLE_SLIDE_BACKGROUND_REPEAT:
+#+REVEAL_TITLE_SLIDE_BACKGROUND_TRANSITION:
+#+REVEAL_MATHJAX_URL: https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML
+#+REVEAL_PREAMBLE:
+#+REVEAL_HEAD_PREAMBLE:
+#+REVEAL_POSTAMBLE:
+#+REVEAL_MULTIPLEX_ID:
+#+REVEAL_MULTIPLEX_SECRET:
+#+REVEAL_MULTIPLEX_URL:
+#+REVEAL_MULTIPLEX_SOCKETIO_URL:
+#+REVEAL_SLIDE_HEADER:
+#+REVEAL_SLIDE_FOOTER:
+#+REVEAL_PLUGINS: (markdown notes zoom multiplex classList)
+# #+OPTIONS: reveal_single_file:t
+#+REVEAL_DEFAULT_FRAG_STYLE:
+#+REVEAL_HIGHLIGHT_CSS: %r/lib/css/zenburn.css
+
+#+OPTIONS: toc:nil
+
+
+* Quien soy?
+
+- Miguel Garcia (Rock Neurotiko)
+- Estudiante de la FI UPM
+- Becario en el CoNWeT Lab
+- Presidente de ACM UPM
+- I <3 Programming Languages & *Concurrency*
+
+* Los cuatro efectos esenciales en programacion
+
+|           | Un valor  | Muchos valores |
+| Sincrono  | T/Try[T]  | Iterable[T]    |
+| Asincrono | Future[T] | Observable[T]  |
+
+* Cuantas cosas suceden a la vez en una web?
+
+- [ ] Inicializacion de la aplicacion
+- [ ] Reproductores
+- [ ] View/model binding (teclado, raton, ...)
+- [ ] Animaciones
+- [X] Carga de informacion a traves de APIs (Data access)
+- [X] Enviar informacion a servidores (tracking, upload, ...)
+- [ ] MUCHO mas
+
+* Latencia como efecto
+** Algunos datos
+
+|-------------------------------------+-----------------------------|
+| <l>                                 |                         <r> |
+| instruccion                         |      1/10^9 sec = 1 nanosec |
+| L1 cache                            |                 0.5 nanosec |
+| fallo de cache                      |                   5 nanosec |
+| L2 cache                            |                   7 nanosec |
+| Mutex (un)lock                      |                  25 nanosec |
+| Memoria principal                   |                 100 nanosec |
+| Enviar 2KB con 1Gbps                |              20.000 nanosec |
+| Leer 1MB secuencialmente de memoria |             250.000 nanosec |
+| Seek a una nueva posicion de disco  |            800.0000 nanosec |
+| Leer 1MB secuencialmente de disco   |          20.000.000 nanosec |
+| Enviar un paquete a US y vuelta     | 150ms = 150.000.000 nanosec |
+|-------------------------------------+-----------------------------|
+
+** Ajam
+
+** En escala humana!
+
+|-------------------------------------+-----------------|
+| <l>                                 |             <r> |
+| instruccion                         |       1 segundo |
+| L1 cache                            |    0.5 segundos |
+| fallo de cache                      |      5 segundos |
+| L2 cache                            |      7 segundos |
+| Mutex (un)lock                      |    medio minuto |
+| Memoria principal                   |  minuto y medio |
+| Enviar 2KB con 1Gbps                | 5 horas y media |
+| Leer 1MB secuencialmente de memoria |          3 dias |
+| Seek a una nueva posicion de disco  |      13 semanas |
+| Leer 1MB secuencialmente de disco   | 6 meses y medio |
+| Enviar un paquete a US y vuelta     |          5 años |
+|-------------------------------------+-----------------|
+
+
+* Traditional aproach
+
+CALLBACKS!
+
+** Show me!
+
+#+BEGIN_SRC js
+  $.ajax({
+      method: "GET",
+      url: "/api/v1/films",
+      success: function (data, textStatus, jqXHR) {
+          // Use them...
+      },
+      error: function (jqXHR, textStatus, error) {
+          // Handle error...
+      }
+  });
+
+  $.get("/api/v1/films", function (data) {
+      // Use data...
+  });
+#+END_SRC
+
+* Caracteristicas
+
+- Es lo mas sencillo para hacer cosas asincronas
+- Pero el control flow es una mierda
+- No hay consistencia en la API (doble callback, callback con dos valores, en opciones, componiendo, ....)
+- Mind blow cuando tienes callbacks con callbacks que llaman a otros callbacks que vienen de callbacks, ....
+- Excepciones capturadas instantaneamente, no se pueden agrupar ni componer
+
+* Callback hell!
+** [[http://callbackhell.com/][CallbackHell web]]
+
+Bonito verdad?
+
+#+BEGIN_SRC js
+  fs.readdir(source, function (err, files) {
+      if (err) {
+          console.log("Error finding files: " + err);
+      } else {
+          files.forEach(function (filename, fileIndex) {
+              console.log(filename);
+              gm(source + filename).size(function (err, values) {
+                  if (err) {
+                      console.log("Error identifying file size: " + err);
+                  } else {
+                      console.log(filename + " : " + values);
+                      aspect = (values.width / values.height);
+                      widths.forEach(function (width, widthIndex) {
+                          height = Math.round(width / aspect);
+                          console.log("resizing " + filename + "to " + height + "x" + height);
+                          this.resize(width, height).write(dest + "w" + width + "_" + filename, function (err) {
+                              if (err) {
+                                  console.log("Error writing file: " + err);
+                              }
+                          });
+                      }.bind(this));
+                  }
+              });
+          });
+      }
+  });
+#+END_SRC
+
+** Ejemplo real
+
+[[https://github.com/wirecloud-fiware/kurento-example-services/blob/master/kurento-crowddetector/server.js#L179][Gracias compañeros!]]
+
+#+BEGIN_SRC js
+  function start(sessionId, sdpOffer, callback) {
+      if (!sessionId) {
+          return callback("Cannot use undefined sessionId");
+      }
+      // Check if session is already transmitting
+      if (pipelines[sessionId]) {
+          return callback("Close current session before starting a new one or use another browser to open a tutorial.");
+      }
+      getKurentoClient(function (error, kurentoClient) {
+          if (error) {
+              return callback(error);
+          }
+          kurentoClient.create("MediaPipeline", function (error, pipeline) {
+              if (error) {
+                  return callback(error);
+              }
+              createMediaElements(pipeline, function (error, webRtcEndpoint, crowdDetector) {
+                  if (error) {
+                      pipeline.release();
+                      return callback(error);
+                  }
+                  connectMediaElements(webRtcEndpoint, crowdDetector, function (error) {
+                      if (error) {
+                          pipeline.release();
+                          return callback(error);
+                      }
+                      crowdDetector.on("CrowdDetectorDirection", function (_data){
+                          return callback(null, "crowdDetectorDirection", _data);
+                      });
+                      crowdDetector.on("CrowdDetectorFluidity", function (_data){
+                          return callback(null, "crowdDetectorFluidity", _data);
+                      });
+                      crowdDetector.on("CrowdDetectorOccupancy", function (_data){
+                          return callback(null, "crowdDetectorOccupancy", _data);
+                      });
+                      webRtcEndpoint.processOffer(sdpOffer, function (error, sdpAnswer) {
+                          if (error) {
+                              pipeline.release();
+                              return callback(error);
+                          }
+                          pipelines[sessionId] = pipeline;
+                          return callback(null, "sdpAnswer", sdpAnswer);
+                      });
+                  });
+              });
+          });
+      });
+  }
+#+END_SRC
+
+** ...
+
+WHY?
+
+[[./extra/why1.jpg]]
+
+[[./extra/why2.jpg]]
+
+* Monadas al rescate
+
+O casi...
+- Puramente no lo es, en la practica nos sirve de sobra.
+- Task de [[https://github.com/scalaz/scalaz][Scalaz]] o de [[http://elm-lang.org/guide/reactivity][Elm]]
+- Monad-like interfaz, todos los beneficios ignorando los bordes de los matematicos
+
+** What?
+
+- Future ~= Promise
+- Objeto con un valor... Que estara en algun momento del futuro
+- La computacion se completa, de forma existosa o fracasando
+
+** Como?
+*** Scala
+- En =scala.concurrent.Future=
+- =Future[T]=
+
+**** Futurize it!
+
+#+BEGIN_SRC scala
+  def getFuture(url: String): Future[String] = Future {
+    getSyncUrl(url)
+  }
+  // Future(getSomeUrl(url))
+#+END_SRC
+
+**** Composing
+
+***** Map
+
+#+BEGIN_SRC scala
+  val containsACM: Future[Boolean] = getFuture("http://acm.org").map { source =>
+    // We are in the future! :)
+    source.contains("ACM")
+  }
+#+END_SRC
+
+***** Flatting futures
+
+****** flatMap
+
+#+BEGIN_SRC scala
+  def validateHtml: Future[Boolean] = ???
+
+  val nestedHtmlValidated: Future[Future[Boolean]] = getFuture("http://acm.org").map {
+    source => validateHtml(source)
+  }
+
+  val htmlValidated: Future[Boolean] = getFuture("http://acm.org").flatMap {
+    source => validateHtml(source)
+  }
+#+END_SRC
+
+****** For comprehesions
+
+#+BEGIN_SRC scala
+  def asyncMerge(v1: String, v2: String): Future[String] = ???
+
+  def manyThings(): Future[Boolean] = {
+    val f1 = getFuture("test")
+    val f2 = getFuture("test2")
+    for {
+      test <- f1
+      test2 <- f2
+      combined <- asyncMerge(test, test2)
+      validated <- validateHtml(combined)
+    } yield validated
+  }
+#+END_SRC
+
+*** JS
+
+- ES6 Promise || [[https://github.com/petkaantonov/bluebird][Bluebird]] || [[https://github.com/kriskowal/q][Q]] ...
+
+**** Futurize it!
+
+#+BEGIN_SRC js
+  function getPromise(url) {
+      return new Promise(function (resolve, reject) {
+          const data = getSyncUrl(url);
+          if (data) {
+              resolve(data);
+          } else {
+              reject(Error("Error"));
+              // throw new Exception("Error);
+          }
+      });
+  }
+#+END_SRC
+
+**** Composing
+
+***** And then, and then, and then...
+#+BEGIN_SRC js
+  getPromise("http://acm.org").then(result => {
+      console.log("Worked!");
+  }).catch(error => {
+      console.log("Error");
+  });
+#+END_SRC
+
+***** Inner promises
+#+BEGIN_SRC js
+  getPromise("http://acm.org")
+      .then(source => validateHtml(source))
+      .then(htmlValidated => {
+          console.log(htmlValidated);
+      })
+      .catch(error => {
+          console.log(error);
+      });
+#+END_SRC
+***** Many promises
+#+BEGIN_SRC js
+  Promise.all([Promise1, Promise2, Promise3, Promise4])
+      .then(values => {
+          // values son los valores en orden del resultado de Promise[1..4]
+      });
+
+  Promise.race([Promise1, Promise2, Promise3, Promise4])
+      .then(value => {
+          // Valor del que llegue primero
+      })
+#+END_SRC
+***** Ejemplo real
+#+BEGIN_SRC js
+  const getJson = url => getUrl(url).then(JSON.parse)
+
+  getJson("story.json")
+      .then(story => {
+          addHtmlToPage(story.heading);
+          return Promise.all(story.chapters.map(getJson));
+      }).then(chapters => {
+          chapters.forEach(chapter => addHtmlToPage(chapter.html));
+      }).catch(err => {
+          addTextToPage("Error!" + err.message)
+      }).then(() => {
+          $("#spinner").hide();
+      });
+#+END_SRC
+***** Cuidado!
+Como todas las abstracciones, hay que tener cuidado al usarlo
+Siempre componer, no caer en el callback hell again!
+
+Visto en [[https://gist.github.com/anonymous/2d4724f42da82ebadc5408420ef7355f][reddit]]:
+#+BEGIN_SRC js
+        }, function(error) {
+          deferred.reject(error)
+        })
+      }, function(error) {
+        deferred.reject(error)
+      })
+    }, function(error) {
+      deferred.reject(error)
+    })
+  }, function(error) {
+    deferred.reject(error)
+  }
+#+END_SRC
+* Links
+- [[http://docs.scala-lang.org/overviews/core/futures.html][Scala Futures]]
+- [[http://danielwestheide.com/blog/2013/01/09/the-neophytes-guide-to-scala-part-8-welcome-to-the-future.html][Neophyte guide to Future 1]]
+- [[http://danielwestheide.com/blog/2013/01/16/the-neophytes-guide-to-scala-part-9-promises-and-futures-in-practice.html][Neophyte guide to Future 2]]
+- [[https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise][ES6 Promise]]
+- [[http://es.slideshare.net/domenicdenicola/promises-promises][JS Promise slides]]
+- [[http://stackoverflow.com/questions/27454798/is-future-in-scala-a-monad][Future is a monad?]]
+- [[http://elm-lang.org/guide/reactivity][Elm]]
+- [[https://github.com/scalaz/scalaz][Scalaz]]
+- Extra: [[https://www.coursera.org/course/reactive][Principles of Reactive Programming course]]

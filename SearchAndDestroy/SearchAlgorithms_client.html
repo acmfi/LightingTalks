@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<title>404</title>
+<meta name="author" content="(Nacho)"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="file:///home/mgarcia/.emacs.d/plugins/revealjs/css/reveal.css"/>
+<link rel="stylesheet" href="file:///home/mgarcia/.emacs.d/plugins/revealjs/css/theme/league.css" id="theme"/>
+<link rel="stylesheet" href="./acm.css"/>
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = 'file:///home/mgarcia/.emacs.d/plugins/revealjs/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+<meta name="description" content="EmacsFTW.">
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide">
+<h1>404</h1>
+<h2>Nacho</h2>
+<h2><a href="mailto:SexyACM@BestAsocEUW.io">SexyACM@BestAsocEUW.io</a></h2>
+<h2></h2>
+</section>
+
+<section>
+<section id="slide-orgheadline1">
+<h2 id="orgheadline1"><b>Búsqueda de elementos</b></h2>
+</section>
+</section>
+<section>
+<section id="slide-orgheadline3">
+<h2 id="orgheadline3"><b>Búsqueda Lineal</b></h2>
+<div class="outline-text-2" id="text-orgheadline3">
+</div></section>
+<section id="slide-orgheadline2">
+<h3 id="orgheadline2"><b>Jump search</b></h3>
+</section>
+</section>
+<section>
+<section id="slide-orgheadline5">
+<h2 id="orgheadline5"><b>Búsqueda binaria</b></h2>
+
+<div class="figure">
+<p><img src="./images/BinarySearch.gif" alt="BinarySearch.gif" />
+</p>
+</div>
+</section>
+<section id="slide-orgheadline4">
+<h3 id="orgheadline4"><b>Problema en varias implementaciones</b></h3>
+</section>
+</section>
+<section>
+<section id="slide-orgheadline8">
+<h2 id="orgheadline8"><b>Búsqueda de Fibonacci</b></h2>
+<div class="outline-text-2" id="text-orgheadline8">
+</div></section>
+<section id="slide-orgheadline6">
+<h3 id="orgheadline6"><b>Similarities with Binary Search</b></h3>
+<ul>
+<li>Works for sorted arrays</li>
+<li>A Divide and Conquer Algorithm.</li>
+<li>Has Log n time complexity.</li>
+
+</ul>
+
+</section>
+<section id="slide-orgheadline7">
+<h3 id="orgheadline7"><b>Differences with Binary Search</b></h3>
+<ul>
+<li>Fibonacci Search divides given array in unequal parts</li>
+<li>Binary Search uses division operator to divide range. Fibonacci
+Search doesn’t use /, but uses + and -. The division operator may be
+costly on some CPUs.</li>
+<li>Fibonacci Search examines relatively closer elements in subsequent
+steps. So when input array is big that cannot fit in CPU cache or
+even in RAM, Fibonacci Search can be useful.</li>
+
+</ul>
+
+</section>
+</section>
+<section>
+<section id="slide-orgheadline10">
+<h2 id="orgheadline10"><b>Búsqueda ternaria</b></h2>
+<div class="outline-text-2" id="text-orgheadline10">
+</div></section>
+<section id="slide-orgheadline9">
+<h3 id="orgheadline9"><b>Búsqueda binaria vs ternaria</b></h3>
+</section>
+</section>
+<section>
+<section id="slide-orgheadline11">
+<h2 id="orgheadline11"><b>Búsqueda por interpolación</b></h2>
+</section>
+</section>
+</div>
+</div>
+<script src="file:///home/mgarcia/.emacs.d/plugins/revealjs/lib/js/head.min.js"></script>
+<script src="file:///home/mgarcia/.emacs.d/plugins/revealjs/js/reveal.js"></script>
+
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: true,
+center: true,
+slideNumber: 'h/v',
+rollingLinks: false,
+keyboard: true,
+overview: true,
+width: 1200,
+height: 800,
+margin: 0.10,
+minScale: 0.50,
+maxScale: 2.50,
+
+theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+transition: Reveal.getQueryHash().transition || 'linear', // default/cube/page/concave/zoom/linear/fade/none
+transitionSpeed: 'default',
+multiplex: {
+    secret: null, // null if client
+    id: '', // id, obtained from socket.io server
+    url: '' // Location of socket.io server
+},
+
+// Optional libraries used to extend on reveal.js
+dependencies: [
+{ src: './acm.js', async: true },
+ { src: 'file:///home/mgarcia/.emacs.d/plugins/revealjs/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: 'file:///home/mgarcia/.emacs.d/plugins/revealjs/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: 'file:///home/mgarcia/.emacs.d/plugins/revealjs/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: 'file:///home/mgarcia/.emacs.d/plugins/revealjs/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: '', async: true },
+ { src: 'file:///home/mgarcia/.emacs.d/plugins/revealjs/plugin/multiplex/client.js', async: true },
+ { src: 'file:///home/mgarcia/.emacs.d/plugins/revealjs/lib/js/classList.js', condition: function() { return !document.body.classList; } }]
+});
+</script>
+</body>
+</html>
